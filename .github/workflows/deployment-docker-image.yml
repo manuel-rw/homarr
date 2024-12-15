@@ -78,7 +78,8 @@ jobs:
       - name: Build and push
         id: buildPushAction
         uses: docker/build-push-action@v6
-        if: ${{ github.events.inputs.push-image == 'true' || github.events.inputs.push-image == null }}
+        if: false
+        # if: ${{ github.events.inputs.push-image == 'true' || github.events.inputs.push-image == null }}
         with:
           platforms: linux/amd64,linux/arm64
           context: .
@@ -104,7 +105,7 @@ jobs:
       - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: npm install -g @semantic-release/npm @semantic-release/github @semantic-release/git && npx semantic-release
       - name: Discord notification
         if: ${{ github.events.inputs.send-notifications != false && (github.events.inputs.push-image == 'true' || github.events.inputs.push-image == null) }}
         env:
