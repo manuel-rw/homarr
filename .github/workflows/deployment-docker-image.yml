@@ -27,7 +27,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   TURBO_TELEMETRY_DISABLED: 1
 
-concurrency: production
+concurrency: production-release
 
 jobs:
   deploy:
@@ -71,11 +71,8 @@ jobs:
         with:
           images: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
           tags: |
-            type=raw,value=alpha
-            type=raw,value=early-adopters
-      #          tags: |
-      #            type=raw,value=latest
-      #            type=raw,value=${{ steps.semver.outputs.next }}
+            type=raw,value=latest
+            type=raw,value=${{ steps.semver.outputs.next }}
       - name: Build and push
         id: buildPushAction
         uses: docker/build-push-action@v6
@@ -102,6 +99,10 @@ jobs:
           network: host
         env:
           SKIP_ENV_VALIDATION: true
+      - name: Run Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
       - name: Discord notification
         if: ${{ github.events.inputs.send-notifications != false && (github.events.inputs.push-image == 'true' || github.events.inputs.push-image == null) }}
         env:
